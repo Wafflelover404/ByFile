@@ -14,7 +14,9 @@ const server = net.createServer(socket => {
             fileName = data.toString();
 
             // Create a writable stream with the received file name and extension
-            const fileStream = fs.createWriteStream(fileName);
+            const filePath = path.join('/home/wafflelover404/Desktop/test-empty', fileName);
+            const fileStream = fs.createWriteStream(filePath);
+            console.log('File written');
             socket.pipe(fileStream);
         } else {
             // Continue writing the rest of the file content
