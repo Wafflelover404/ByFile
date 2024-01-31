@@ -1,25 +1,7 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const net = require('net');
-
-let mainWindow = null;
-
-function createWindow() {
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    });
-
-    mainWindow.loadFile('empty.html');
-
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
-}
 
 function pickFileAndWritePath() {
     dialog
@@ -29,15 +11,28 @@ function pickFileAndWritePath() {
         .then((result) => {
             const filePath = result.filePaths[0];
             if (filePath) {
-                fs.writeFile('output.txt', filePath, (err) => {
+                fs.stat(filePath, (err, stats) => {
                     if (err) {
                         console.error(err);
                         return;
                     }
-                    console.log('File path written to output.txt');
 
-                    // Read and process the file
-                    readAndSendFile(filePath);
+                    if (stats.size === 0) {
+                        console.error('Selected file is empty.');
+                        app.quit();
+                        return;
+                    }
+
+                    fs.writeFile('output.txt', filePath, (err) => {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        console.log('File path written to output.txt');
+
+                        // Read and process the file
+                        readAndSendFile(filePath);
+                    });
                 });
             }
         })
@@ -75,8 +70,24 @@ function readAndSendFile(filePath) {
     });
 }
 
+// Single instance lock
+const isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
+    app.quit();
+    return;
+}
+
+app.on('second-instance', () => {
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
+});
+
 app.on('ready', () => {
-    createWindow();
+    pickFileAndWritePath();
 });
 
 app.on('window-all-closed', () => {
@@ -87,10 +98,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     if (mainWindow === null) {
-        createWindow();
+        pickFileAndWritePath();
     }
-});
-
-app.whenReady().then(() => {
-    pickFileAndWritePath();
 });
