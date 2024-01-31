@@ -1,0 +1,1 @@
+/home/wafflelover404/SecLists/Passwords/500-worst-passwords.txt
