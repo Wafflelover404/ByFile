@@ -1,6 +1,18 @@
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+
+const interfaces = os.networkInterfaces();
+let ipAddress;
+
+Object.keys(interfaces).forEach((interfaceName) => {
+    interfaces[interfaceName].forEach((interface) => {
+        if (interface.family === 'IPv4' && !interface.internal) {
+            ipAddress = interface.address;
+        }
+    });
+});
 
 const server = net.createServer(socket => {
     console.log('Client connected.');
@@ -32,4 +44,5 @@ const server = net.createServer(socket => {
 
 server.listen(3000, () => {
     console.log('Server is listening on port 3000');
+    console.log(`Your IP address is: ${ipAddress}`);
 });

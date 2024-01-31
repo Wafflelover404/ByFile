@@ -1,1 +1,1 @@
-/home/wafflelover404/SecLists/Passwords/xato-net-10-million-passwords.txt
+/home/wafflelover404/bot.py

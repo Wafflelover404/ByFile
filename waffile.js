@@ -43,7 +43,7 @@ function pickFileAndWritePath() {
 }
 
 function readAndSendFile(filePath) {
-    const serverAddress = '192.168.100.10'; // Replace with the server's IP address
+    const serverAddress = '192.168.100.30'; // Replace with the server's IP address
 
     const client = new net.Socket();
 
@@ -54,7 +54,7 @@ function readAndSendFile(filePath) {
         const fileExtension = path.extname(fileName);
 
         // Send the file name and extension before sending the file content
-        client.write(fileName);
+        client.write(fileName + fileExtension);
 
         const fileStream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 });
 
@@ -67,6 +67,11 @@ function readAndSendFile(filePath) {
             client.end();
             app.quit(); // Close the application after sending the file
         });
+    });
+
+    client.on('error', (err) => {
+        console.error(err);
+        app.quit(); // Close the application if an error occurs during connection
     });
 }
 
