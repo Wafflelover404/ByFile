@@ -35,14 +35,25 @@ function connectToServer() {
                     secondUserId,
                 };
                 socket.send(JSON.stringify(secondUserRequest));
-
-                rl.close();
             });
         } else if (response.type === 'connect') {
             console.log('You have been connected with another user.');
 
             // Perform any necessary actions to establish the connection between the devices
             // For example, you can start a video call or initiate a data transfer.
+        } else if (response.type === 'role') {
+            const userId = response.userId;
+            rl.question(`You have been matched with ${userId}. Enter your role ('sender' or 'receiver'): `, (role) => {
+                // Send the selected role to the server
+                const roleRequest = {
+                    type: 'role',
+                    userId,
+                    role,
+                };
+                socket.send(JSON.stringify(roleRequest));
+            });
+        } else if (response.type === 'notification') {
+            console.log('Notification:', response.message);
         }
     });
 
