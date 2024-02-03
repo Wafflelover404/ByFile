@@ -1,69 +1,56 @@
 const WebSocket = require('ws');
 const readline = require('readline');
-const fs = require('fs');
 
-const socket = new WebSocket('ws://localhost:3000');
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
+function connectToServer() {
+    const socket = new WebSocket('ws://localhost:3000');
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
 
-let uniqueId = '';
+    // Connection opened
+    socket.addEventListener('open', () => {
+        console.log('Connected to server');
 
-// Connection opened
-socket.on('open', () => {
-    console.log('Connected to server');
+        // Send a message to the server to request a unique ID
+        const request = {
+            type: 'recid',
+        };
+        socket.send(JSON.stringify(request));
+    });
 
-    // Send a message to the server to request a unique ID
-    const request = {
-        type: 'recid',
-    };
-    socket.send(JSON.stringify(request));
-});
+    // Listen for messages from the server
+    socket.addEventListener('message', (event) => {
+        const response = JSON.parse(event.data);
 
-// Listen for messages from the server
-socket.on('message', (data) => {
-    const response = JSON.parse(data);
+        if (response.type === 'recid') {
+            const uniqueId = response.id;
+            console.log('Received unique ID:', uniqueId);
 
-    if (response.type === 'recid') {
-        uniqueId = response.id;
-        console.log('Received unique ID:', uniqueId);
+            // Prompt the user to enter the ID of the second user
+            rl.question('Enter the ID of the second user: ', (secondUserId) => {
+                // Send the ID of the second user to the server
+                const secondUserRequest = {
+                    type: 'seconduser',
+                    secondUserId,
+                };
+                socket.send(JSON.stringify(secondUserRequest));
 
-        // Prompt the user for input
-        rl.question('Enter the user ID to send a request: ', (userId) => {
-            // Check if the user is the sender or receiver
-            rl.question('Are you the sender (Y/N)? ', (answer) => {
-                const isSender = answer.toLowerCase() === 'y';
-
-                // Prompt the user for file path
-                rl.question('Enter the file path: ', (filePath) => {
-                    // Read the file contents
-                    fs.readFile(filePath, (err, fileData) => {
-                        if (err) {
-                            console.error('Error reading file:', err);
-                            rl.close();
-                            return;
-                        }
-
-                        // Send the user ID, sender/receiver information, and file data to the server
-                        const request = {
-                            type: 'newrequest',
-                            from: uniqueId,
-                            to: userId,
-                            isSender: isSender,
-                            fileData: fileData.toString('base64'),
-                        };
-                        socket.send(JSON.stringify(request));
-
-                        rl.close();
-                    });
-                });
+                rl.close();
             });
-        });
-    }
-});
+        } else if (response.type === 'connect') {
+            console.log('You have been connected with another user.');
 
-// Connection closed
-socket.on('close', () => {
-    console.log('Disconnected from server');
-});
+            // Perform any necessary actions to establish the connection between the devices
+            // For example, you can start a video call or initiate a data transfer.
+        }
+    });
+
+    // Connection closed
+    socket.addEventListener('close', () => {
+        console.log('Disconnected from server');
+    });
+}
+
+// Usage: Call the function to connect to the server
+connectToServer();
