@@ -1,105 +1,65 @@
-const express = require('express');
-const http = require('http');
 const WebSocket = require('ws');
-const fs = require('fs');
+const wss = new WebSocket.Server({ port: 3000 });
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const connectedUsers = new Map();
+const pendingRequests = [];
 
-// Generate individual IDs for users
-const generateUniqueId = () => {
-    let counter = 0;
-    return () => {
-        counter++;
-        return counter.toString();
-    };
-};
-
-const generateId = generateUniqueId();
-
-// Store user interests, WebSocket connections, and file data
-const users = new Map();
-
-// Handle WebSocket connections
 wss.on('connection', (ws) => {
-    console.log('Client connected');
+    const userId = generateUniqueId();
+    connectedUsers.set(userId, ws);
 
-    // Handle incoming messages from the client
     ws.on('message', (message) => {
-        console.log('Received message:', message);
-
         const request = JSON.parse(message);
 
         if (request.type === 'recid') {
-            const uniqueId = generateId();
             const response = {
                 type: 'recid',
-                id: uniqueId,
+                id: userId,
             };
             ws.send(JSON.stringify(response));
+        } else if (request.type === 'seconduser') {
+            const { secondUserId } = request;
+            const senderId = getUserIdByWebSocket(ws);
 
-            // Store the WebSocket connection with the unique ID
-            users.set(uniqueId, {
-                ws,
-                fileData: null,
-            });
-        } else if (request.type === 'newrequest') {
-            const from = request.from;
-            const to = request.to;
-            const isSender = request.isSender;
-            const fileData = request.fileData;
+            // Check if there is a pending request from the second user to the sender
+            const pendingRequest = pendingRequests.find(
+                (req) => (req.from === secondUserId && req.to === senderId)
+            );
 
-            // Check if the "to" user exists and has a matching interest
-            if (users.has(to) && users.has(from) && to !== from) {
-                const fromUser = users.get(from);
-                const toUser = users.get(to);
+            if (pendingRequest) {
+                // Remove the pending request
+                pendingRequests.splice(pendingRequests.indexOf(pendingRequest), 1);
 
-                // Store the file data for the sender
-                if (isSender) {
-                    fromUser.fileData = fileData;
-                }
+                // Send notifications to both users
+                const senderWs = connectedUsers.get(senderId);
+                const secondUserWs = connectedUsers.get(secondUserId);
 
-                // If both sender and receiver have file data, initiate file transfer
-                if (fromUser.fileData && toUser.fileData) {
-                    // Save the file for the receiver
-                    const filePath = `received_files/${to}-${from}.txt`;
-                    fs.writeFile(filePath, fromUser.fileData, (err) => {
-                        if (err) {
-                            console.error('Error saving file:', err);
-                            return;
-                        }
-                        console.log(`File saved as: ${filePath}`);
+                senderWs.send(JSON.stringify({ type: 'notification', message: 'You are now connected with the second user.' }));
+                secondUserWs.send(JSON.stringify({ type: 'notification', message: 'You are now connected with the sender user.' }));
 
-                        // Clear the file data for both sender and receiver
-                        fromUser.fileData = null;
-                        toUser.fileData = null;
-                    });
-                }
+                console.log(`Match found: ${senderId} and ${secondUserId}`);
+            } else {
+                // Add the request to the pending requests list
+                pendingRequests.push({ from: senderId, to: secondUserId });
             }
-        } else {
-            // Process other types of messages and send appropriate responses
-            const response = `Server received message: ${message}`;
-            ws.send(response);
         }
     });
 
-    // Handle WebSocket disconnection
-    // Handle WebSocket disconnection
     ws.on('close', () => {
-        console.log('Client disconnected');
-
-        // Remove the WebSocket connection and file data from the users map
-        const userEntry = Array.from(users.entries()).find(([key, value]) => value.ws === ws);
-        if (userEntry) {
-            const userId = userEntry[0];
-            users.delete(userId);
-        }
+        const userId = getUserIdByWebSocket(ws);
+        connectedUsers.delete(userId);
     });
-
 });
 
-// Start the server
-server.listen(3000, () => {
-    console.log('Server started on port 3000');
-});
+function generateUniqueId() {
+    return Math.random().toString(36).substring(2, 8);
+}
+
+function getUserIdByWebSocket(ws) {
+    for (const [userId, userWs] of connectedUsers.entries()) {
+        if (userWs === ws) {
+            return userId;
+        }
+    }
+    return null;
+}
