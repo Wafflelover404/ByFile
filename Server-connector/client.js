@@ -1,5 +1,8 @@
 const WebSocket = require('ws');
 const readline = require('readline');
+const fs = require('fs');
+const path = require('path');
+const mimeTypes = require('mime-types');
 
 function connectToServer() {
     const socket = new WebSocket('ws://localhost:3000');
@@ -7,6 +10,9 @@ function connectToServer() {
         input: process.stdin,
         output: process.stdout,
     });
+
+    let userId;
+    let role;
 
     // Connection opened
     socket.addEventListener('open', () => {
@@ -24,8 +30,8 @@ function connectToServer() {
         const response = JSON.parse(event.data);
 
         if (response.type === 'recid') {
-            const uniqueId = response.id;
-            console.log('Received unique ID:', uniqueId);
+            userId = response.id;
+            console.log('Received unique ID:', userId);
 
             // Prompt the user to enter the ID of the second user
             rl.question('Enter the ID of the second user: ', (secondUserId) => {
@@ -36,24 +42,61 @@ function connectToServer() {
                 };
                 socket.send(JSON.stringify(secondUserRequest));
             });
+        } else if (response.type === 'role') {
+            const matchedUserId = response.userId;
+            rl.question(`You have been matched with ${matchedUserId}. Enter your role ('sender' or 'receiver'): `, (selectedRole) => {
+                role = selectedRole;
+                // Send the selected role to the server
+                const roleRequest = {
+                    type: 'role',
+                    userId: matchedUserId,
+                    role: selectedRole,
+                };
+                socket.send(JSON.stringify(roleRequest));
+
+                if (role === 'sender') {
+                    // Prompt the sender to enter the path to the file
+                    rl.question('Enter the path to the file: ', (filePath) => {
+                        // Read the file and convert it to a Data URL
+                        const fileData = fs.readFileSync(filePath);
+                        const mimeType = mimeTypes.lookup(filePath);
+                        const dataUrl = `data:${mimeType};base64,${fileData.toString('base64')}`;
+
+                        // Send the Data URL to the server
+                        const fileRequest = {
+                            type: 'fileData',
+                            dataUrl,
+                        };
+                        socket.send(JSON.stringify(fileRequest));
+                    });
+                }
+            });
         } else if (response.type === 'connect') {
             console.log('You have been connected with another user.');
 
             // Perform any necessary actions to establish the connection between the devices
             // For example, you can start a video call or initiate a data transfer.
-        } else if (response.type === 'role') {
-            const userId = response.userId;
-            rl.question(`You have been matched with ${userId}. Enter your role ('sender' or 'receiver'): `, (role) => {
-                // Send the selected role to the server
-                const roleRequest = {
-                    type: 'role',
-                    userId,
-                    role,
-                };
-                socket.send(JSON.stringify(roleRequest));
-            });
         } else if (response.type === 'notification') {
             console.log('Notification:', response.message);
+        } else if (response.type === 'fileData') {
+            console.log('Received file data from sender');
+
+            // Write the file to the current directory
+            const fileName = `received_file_${Date.now()}`;
+            const filePath = path.join(__dirname, fileName);
+            const fileDataUrl = response.dataUrl;
+
+            // Extract the base64 data from the Data URL
+            const base64Data = fileDataUrl.split(',')[1];
+
+            // Write the file asynchronously
+            fs.writeFile(filePath, base64Data, 'base64', (err) => {
+                if (err) {
+                    console.error('Error writing file:', err);
+                } else {
+                    console.log('File written successfully:', fileName);
+                }
+            });
         }
     });
 
