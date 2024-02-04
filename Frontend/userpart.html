@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Enhanced Page</title>
+    <style>
+        body {
+            background-image: url('backgrounds/photo_5330353237141869173_y.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #303030;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease; /* Add transform to the transition */
+            margin: 5px;
+        }
+
+        .button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            opacity: 1;
+            transform: scale(1.1); /* Add a scale transformation on hover */
+        }
+
+        .menu.active {
+            margin-left: 0;
+        }
+
+        .menu input,
+        .menu button {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .menu.active input,
+        .menu.active button {
+            opacity: 1;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .menu {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Share Files</h1>
+    <p>Fast Simple Secure</p>
+    <div>
+        <button id="transmitterButton" class="button" onclick="selectRole('sender')">I'm a Sender</button>
+        <button id="recipientButton" class="button" onclick="selectRole('receiver')">I'm a Receiver</button>
+        <div id="transmitterMenu" style="display: none;">
+            <p>Your ID: <span id="yourId"></span></p>
+            <input type="text" id="receiverId" placeholder="Receiver ID">
+            <input type="file" id="filePicker">
+            <button onclick="sendRequest()">Send Request</button>
+        </div>
+        <div id="recipientMenu" style="display: none;">
+            <p>Your ID: <span id="yourIdRecipient"></span></p>
+            <input type="text" id="transmitterId" placeholder="Transmitter ID">
+            <button onclick="connect()">Connect</button>
+        </div>
+    </div>
+</div>
+<script>
+    function selectRole(role) {
+        if (role === 'sender') {
+            document.getElementById('transmitterMenu').style.display = 'block';
+            document.getElementById('recipientMenu').style.display = 'none';
+        } else if (role === 'receiver') {
+            document.getElementById('transmitterMenu').style.display = 'none';
+            document.getElementById('recipientMenu').style.display = 'block';
+        }
+    }
+
+    const socket = new WebSocket('ws://localhost:3000');
+    const userIdElement = document.getElementById('yourId');
+    const userIdRecipientElement = document.getElementById('yourIdRecipient');
+    const receiverIdElement = document.getElementById('receiverId');
+    const transmitterIdElement = document.getElementById('transmitterId');
+    const filePickerElement = document.getElementById('filePicker');
+
+    // Connection opened
+    socket.addEventListener('open', () => {
+        console.log('Connected to server');
+
+        // Send a message to the server to request a unique ID
+        const request = {
+            type: 'recid',
+        };
+        socket.send(JSON.stringify(request));
+    });
+
+    // Listen for messages from the server
+    socket.addEventListener('message', (event) => {
+        const response = JSON.parse(event.data);
+
+        if (response.type === 'recid') {
+            const userId = response.id;
+            console.log('Received unique ID:', userId);
+            userIdElement.textContent = userId;
+            userIdRecipientElement.textContent = userId;
+        } else if (response.type === 'role') {
+            const matchedUserId = response.userId;
+            const selectedRole = response.role;
+            console.log(`You have been matched with ${matchedUserId}. Your role is ${selectedRole}.`);
+            userIdElement.textContent = matchedUserId;
+            userIdRecipientElement.textContent = matchedUserId;
+
+            if (selectedRole === 'sender') {
+                document.getElementById('transmitterMenu').style.display = 'block';
+                document.getElementById('recipientMenu').style.display = 'none';
+
+                // Prompt the sender to enter the path to the file
+                const filePath = prompt('Enter the path to the file:');
+                if (filePath) {
+                    const fileData = readFileData(filePath);
+                    if (fileData) {
+                        sendFileData(fileData);
+                    }
+                }
+            } else if (selectedRole === 'receiver') {
+                document.getElementById('transmitterMenu').style.display = 'none';
+                document.getElementById('recipientMenu').style.display = 'block';
+            }
+        } else if (response.type === 'connect') {
+            console.log('You have been connected with another user.');
+
+            // Perform any necessary actions to establish the connection between the devices
+            // For example, you can start a video call or initiate a data transfer.
+        } else if (response.type === 'notification') {
+            console.log('Notification:', response.message);
+        } else if (response.type === 'fileData') {
+            console.log('Received file data from sender');
+
+            // Write the file to the current directory
+            const fileName = `received_file_${Date.now()}`;
+            const fileDataUrl = response.dataUrl;
+            downloadFile(fileName, fileDataUrl);
+        }
+    });
+
+    // Connection closed
+    socket.addEventListener('close', () => {
+        console.log('Disconnected from server');
+    });
+
+    function sendRequest() {
+        const receiverId = receiverIdElement.value;
+        const request = {
+            type: 'seconduser',
+            secondUserId: receiverId,
+        };
+        socket.send(JSON.stringify(request));
+    }
+
+    function connect() {
+        const transmitterId = transmitterIdElement.value;
+        const request = {
+            type: 'seconduser',
+            secondUserId: transmitterId,
+        };
+        socket.send(JSON.stringify(request));
+    }
+
+    function readFileData(filePath) {
+        try {
+            const fs = require('fs');
+            const data = fs.readFileSync(filePath);
+            return data.toString('base64');
+        } catch (error) {
+            console.error('Error reading file:', error);
+            return null;
+        }
+    }
+
+    function sendFileData(fileData) {
+        const request = {
+            type: 'fileData',
+            dataUrl: `data:application/octet-stream;base64,${fileData}`,
+        };
+        socket.send(JSON.stringify(request));
+    }
+
+    function downloadFile(fileName, fileDataUrl) {
+        const link = document.createElement('a');
+        link.href = fileDataUrl;
+        link.download = fileName;
+        link.click();
+    }
+</script>
+</body>
+</html>

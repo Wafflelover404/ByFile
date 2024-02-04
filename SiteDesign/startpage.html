@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Enhanced Page</title>
+    <style>
+        body {
+            background-image: url('backgrounds/photo_5330353237141869173_y.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #303030;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease; /* Add transform to the transition */
+            margin: 5px;
+        }
+
+        .button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            opacity: 1;
+            transform: scale(1.1); /* Add a scale transformation on hover */
+        }
+
+        .menu.active {
+            margin-left: 0;
+        }
+
+        .menu input,
+        .menu button {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .menu.active input,
+        .menu.active button {
+            opacity: 1;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .menu {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Share Files</h1>
+    <p>Fast Simple Secure</p>
+    <div>
+        <button id="transmitterButton" class="button" onclick="toggleMenu('transmitterMenu')">I'm a Transmitter</button>
+        <button id="recipientButton" class="button" onclick="toggleMenu('recipientMenu')">I'm a Recipient</button>
+        <div id="transmitterMenu" style="display: none;">
+            <p>Your ID: <span id="yourId"></span></p>
+            <input type="text" id="receiverId" placeholder="Receiver ID">
+            <button id="filePicker">Pick a file</button>
+        </div>
+        <div id="recipientMenu" style="display: none;">
+            <p>Your ID: <span id="yourIdRecipient"></span></p>
+            <input type="text" id="transmitterId" placeholder="Transmitter ID">
+        </div>
+    </div>
+</div>
+<script>
+    function toggleMenu(menuId) {
+        var menu = document.getElementById(menuId);
+        if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>
