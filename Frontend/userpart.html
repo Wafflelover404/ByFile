@@ -41,14 +41,14 @@
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease; /* Add transform to the transition */
+            transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
             margin: 5px;
         }
 
         .button:hover {
             background-color: rgba(255, 255, 255, 1);
             opacity: 1;
-            transform: scale(1.1); /* Add a scale transformation on hover */
+            transform: scale(1.1);
         }
 
         .menu.active {
@@ -65,9 +65,17 @@
         .menu.active button {
             opacity: 1;
         }
+
         @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .menu {
@@ -97,13 +105,24 @@
     </div>
 </div>
 <script>
+    function sendRole(role) {
+        const request = {
+            type: 'role',
+            userId: userIdElement.textContent,
+            role: role,
+        };
+        socket.send(JSON.stringify(request));
+    }
+
     function selectRole(role) {
         if (role === 'sender') {
             document.getElementById('transmitterMenu').style.display = 'block';
             document.getElementById('recipientMenu').style.display = 'none';
+            sendRole(role);
         } else if (role === 'receiver') {
             document.getElementById('transmitterMenu').style.display = 'none';
             document.getElementById('recipientMenu').style.display = 'block';
+            sendRole(role);
         }
     }
 
@@ -134,29 +153,6 @@
             console.log('Received unique ID:', userId);
             userIdElement.textContent = userId;
             userIdRecipientElement.textContent = userId;
-        } else if (response.type === 'role') {
-            const matchedUserId = response.userId;
-            const selectedRole = response.role;
-            console.log(`You have been matched with ${matchedUserId}. Your role is ${selectedRole}.`);
-            userIdElement.textContent = matchedUserId;
-            userIdRecipientElement.textContent = matchedUserId;
-
-            if (selectedRole === 'sender') {
-                document.getElementById('transmitterMenu').style.display = 'block';
-                document.getElementById('recipientMenu').style.display = 'none';
-
-                // Prompt the sender to enter the path to the file
-                const filePath = prompt('Enter the path to the file:');
-                if (filePath) {
-                    const fileData = readFileData(filePath);
-                    if (fileData) {
-                        sendFileData(fileData);
-                    }
-                }
-            } else if (selectedRole === 'receiver') {
-                document.getElementById('transmitterMenu').style.display = 'none';
-                document.getElementById('recipientMenu').style.display = 'block';
-            }
         } else if (response.type === 'connect') {
             console.log('You have been connected with another user.');
 
@@ -197,25 +193,6 @@
         socket.send(JSON.stringify(request));
     }
 
-    function readFileData(filePath) {
-        try {
-            const fs = require('fs');
-            const data = fs.readFileSync(filePath);
-            return data.toString('base64');
-        } catch (error) {
-            console.error('Error reading file:', error);
-            return null;
-        }
-    }
-
-    function sendFileData(fileData) {
-        const request = {
-            type: 'fileData',
-            dataUrl: `data:application/octet-stream;base64,${fileData}`,
-        };
-        socket.send(JSON.stringify(request));
-    }
-
     function downloadFile(fileName, fileDataUrl) {
         const link = document.createElement('a');
         link.href = fileDataUrl;
@@ -224,4 +201,5 @@
     }
 </script>
 </body>
+
 </html>
