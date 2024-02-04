@@ -175,6 +175,20 @@
         console.log('Disconnected from server');
     });
 
+    filePickerElement.addEventListener('change', handleFileSelection);
+
+    function handleFileSelection(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const fileData = e.target.result.split(',')[1]; // Extract the base64 data from the file
+            sendFileData(fileData);
+        };
+
+        reader.readAsDataURL(file);
+    }
+
     function sendRequest() {
         const receiverId = receiverIdElement.value;
         const request = {
@@ -189,6 +203,14 @@
         const request = {
             type: 'seconduser',
             secondUserId: transmitterId,
+        };
+        socket.send(JSON.stringify(request));
+    }
+
+    function sendFileData(fileData) {
+        const request = {
+            type: 'fileData',
+            dataUrl: `data:application/octet-stream;base64,${fileData}`,
         };
         socket.send(JSON.stringify(request));
     }
