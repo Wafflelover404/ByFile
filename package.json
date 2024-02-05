@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "electron filepicker.js"
+    "start": "electron Server-connector/script.js"
   },
   "devDependencies": {
     "electron": "^28.2.0"
