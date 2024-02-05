@@ -163,10 +163,10 @@
         } else if (response.type === 'fileData') {
             console.log('Received file data from sender');
 
-            // Write the file to the current directory
+            // Convert the data URL to a file and trigger the download
             const fileName = `received_file_${Date.now()}`;
             const fileDataUrl = response.dataUrl;
-            downloadFile(fileName, fileDataUrl);
+            convertDataUrlToFile(fileDataUrl, fileName);
         }
     });
 
@@ -215,11 +215,14 @@
         socket.send(JSON.stringify(request));
     }
 
-    function downloadFile(fileName, fileDataUrl) {
+    function convertDataUrlToFile(dataUrl, fileName) {
         const link = document.createElement('a');
-        link.href = fileDataUrl;
+        link.href = dataUrl;
         link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     }
 </script>
 </body>
