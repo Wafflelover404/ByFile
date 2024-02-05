@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "electron Server-connector/script.js"
+    "start": "node Server-connector/script.js"
   },
   "devDependencies": {
     "electron": "^28.2.0"
