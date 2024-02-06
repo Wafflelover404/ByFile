@@ -4,83 +4,88 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Enhanced Page</title>
-    <style>
-        body {
-            background-image: url('backgrounds/photo_5330353237141869173_y.jpg');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            transition: background-color 0.5s ease;
-        }
+<style>
+    body {
+        background-color: #000000;
+        color: #e8e6e3;
+        background-image: url('backgrounds/photo_5330353237141869173_y.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        transition: background-color 0.5s ease;
+    }
 
-        .container {
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.5s ease;
-        }
+    .container {
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.5s ease;
+    }
 
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #303030;
-            color: #ffffff;
-            text-align: center;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-            margin: 5px;
-        }
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #303030;
+        color: #ffffff;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+        margin: 5px;
+    }
 
-        .button:hover {
-            background-color: #606060;
-            opacity: 1;
-            transform: scale(1.1);
-        }
+    .button:hover {
+        background-color: #606060;
+        opacity: 1;
+        transform: scale(1.1);
+    }
 
-        .menu.active {
-            margin-left: 0;
-        }
+    .menu.active {
+        margin-left: 0;
+    }
 
-        .menu input,
-        .menu button {
+    .menu input,
+    .menu button {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .menu.active input,
+    .menu.active button {
+        opacity: 1;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-20px);
             opacity: 0;
-            transition: opacity 0.5s ease;
         }
 
-        .menu.active input,
-        .menu.active button {
+        to {
+            transform: translateY(0);
             opacity: 1;
         }
+    }
 
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
+    .menu {
+        animation: slideIn 0.3s ease-out;
+    }
 
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+</style>
 
-        .menu {
-            animation: slideIn 0.3s ease-out;
-        }
-    </style>
+
 </head>
 
 <body>
