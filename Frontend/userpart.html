@@ -1,234 +1,269 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Enhanced Page</title>
+        <style>
+            body {
+                background-color: #000000;
+                color: #e8e6e3;
+                background-image: url("backgrounds/photo_5330353237141869173_y.jpg");
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                transition: background-color 0.5s ease;
+            }
 
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Enhanced Page</title>
-<style>
-    body {
-        background-color: #000000;
-        color: #e8e6e3;
-        background-image: url('backgrounds/photo_5330353237141869173_y.jpg');
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-size: cover;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        transition: background-color 0.5s ease;
-    }
+            .container {
+                text-align: center;
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                transition: background-color 0.5s ease;
+            }
 
-    .container {
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.5s ease;
-    }
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #303030;
+                color: #ffffff;
+                text-align: center;
+                text-decoration: none;
+                font-size: 16px;
+                border-radius: 5px;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+                margin: 5px;
+            }
 
-    .button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #303030;
-        color: #ffffff;
-        text-align: center;
-        text-decoration: none;
-        font-size: 16px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-        margin: 5px;
-    }
+            .button:hover {
+                background-color: #606060;
+                opacity: 1;
+                transform: scale(1.1);
+            }
 
-    .button:hover {
-        background-color: #606060;
-        opacity: 1;
-        transform: scale(1.1);
-    }
+            .menu.active {
+                margin-left: 0;
+            }
 
-    .menu.active {
-        margin-left: 0;
-    }
+            .menu input,
+            .menu button {
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
 
-    .menu input,
-    .menu button {
-        opacity: 0;
-        transition: opacity 0.5s ease;
-    }
+            .menu.active input,
+            .menu.active button {
+                opacity: 1;
+            }
 
-    .menu.active input,
-    .menu.active button {
-        opacity: 1;
-    }
+            @keyframes slideIn {
+                from {
+                    transform: translateY(-20px);
+                    opacity: 0;
+                }
 
-    @keyframes slideIn {
-        from {
-            transform: translateY(-20px);
-            opacity: 0;
-        }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
 
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
+            .menu {
+                animation: slideIn 0.3s ease-out;
+            }
 
-    .menu {
-        animation: slideIn 0.3s ease-out;
-    }
+            .container {
+                position: relative;
+            }
 
-</style>
+            .github-logo {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .github-logo {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                animation: rotate 2s infinite linear;
+            }
+
+            .github-logo {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                transition: transform 0.3s ease, filter 0.3s ease;
+            }
+
+            .github-logo:hover {
+                transform: scale(1.2);
+                filter: brightness(150%);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <a href="https://github.com/Wafflelover404/ByFile/tree/main" target="_blank">
+                <img class="github-logo" src="images/githublogo-white.png"/>
+            </a>
 
 
-</head>
-
-<body>
-<div class="container">
-    <h1>Share Files</h1>
-    <p>Fast Simple Secure</p>
-    <div>
-        <button id="transmitterButton" class="button" onclick="selectRole('sender')">I'm a Sender</button>
-        <button id="recipientButton" class="button" onclick="selectRole('receiver')">I'm a Receiver</button>
-        <div id="transmitterMenu" style="display: none;">
-            <p>Your ID: <span id="yourId"></span></p>
-            <input type="text" id="receiverId" placeholder="Receiver ID">
-            <input type="file" id="filePicker">
-            <button onclick="sendRequest()">Send Request</button>
+            <h1>Share Files</h1>
+            <p>Fast Simple Secure</p>
+            <div>
+                <button id="transmitterButton" class="button" onclick="selectRole('sender')">I'm a Sender</button>
+                <button id="recipientButton" class="button" onclick="selectRole('receiver')">I'm a Receiver</button>
+                <div id="transmitterMenu" style="display: none;">
+                    <p>Your ID: <span id="yourId"></span></p>
+                    <input type="text" id="receiverId" placeholder="Receiver ID" />
+                    <input type="file" id="filePicker" />
+                    <button onclick="sendRequest()">Send Request</button>
+                </div>
+                <div id="recipientMenu" style="display: none;">
+                    <p>Your ID: <span id="yourIdRecipient"></span></p>
+                    <input type="text" id="transmitterId" placeholder="Transmitter ID" />
+                    <button onclick="connect()">Connect</button>
+                </div>
+            </div>
         </div>
-        <div id="recipientMenu" style="display: none;">
-            <p>Your ID: <span id="yourIdRecipient"></span></p>
-            <input type="text" id="transmitterId" placeholder="Transmitter ID">
-            <button onclick="connect()">Connect</button>
-        </div>
-    </div>
-</div>
-<script>
-    function sendRole(role) {
-        const request = {
-            type: 'role',
-            userId: userIdElement.textContent,
-            role: role,
-        };
-        socket.send(JSON.stringify(request));
-    }
+        <script>
+            function sendRole(role) {
+                const request = {
+                    type: "role",
+                    userId: userIdElement.textContent,
+                    role: role,
+                };
+                socket.send(JSON.stringify(request));
+            }
 
-    function selectRole(role) {
-        if (role === 'sender') {
-            document.getElementById('transmitterMenu').style.display = 'block';
-            document.getElementById('recipientMenu').style.display = 'none';
-            sendRole(role);
-        } else if (role === 'receiver') {
-            document.getElementById('transmitterMenu').style.display = 'none';
-            document.getElementById('recipientMenu').style.display = 'block';
-            sendRole(role);
-        }
-    }
+            function selectRole(role) {
+                if (role === "sender") {
+                    document.getElementById("transmitterMenu").style.display = "block";
+                    document.getElementById("recipientMenu").style.display = "none";
+                    sendRole(role);
+                } else if (role === "receiver") {
+                    document.getElementById("transmitterMenu").style.display = "none";
+                    document.getElementById("recipientMenu").style.display = "block";
+                    sendRole(role);
+                }
+            }
 
-    const socket = new WebSocket('ws://localhost:3000');
-    const userIdElement = document.getElementById('yourId');
-    const userIdRecipientElement = document.getElementById('yourIdRecipient');
-    const receiverIdElement = document.getElementById('receiverId');
-    const transmitterIdElement = document.getElementById('transmitterId');
-    const filePickerElement = document.getElementById('filePicker');
+            const socket = new WebSocket("wss://uniformly-daring-louse.ngrok-free.app");
+            const userIdElement = document.getElementById("yourId");
+            const userIdRecipientElement = document.getElementById("yourIdRecipient");
+            const receiverIdElement = document.getElementById("receiverId");
+            const transmitterIdElement = document.getElementById("transmitterId");
+            const filePickerElement = document.getElementById("filePicker");
 
-    // Connection opened
-    socket.addEventListener('open', () => {
-        console.log('Connected to server');
+            // Connection opened
+            socket.addEventListener("open", () => {
+                console.log("Connected to server");
 
-        // Send a message to the server to request a unique ID
-        const request = {
-            type: 'recid',
-        };
-        socket.send(JSON.stringify(request));
-    });
+                // Send a message to the server to request a unique ID
+                const request = {
+                    type: "recid",
+                };
+                socket.send(JSON.stringify(request));
+            });
 
-    // Listen for messages from the server
-    socket.addEventListener('message', (event) => {
-        const response = JSON.parse(event.data);
+            // Listen for messages from the server
+            socket.addEventListener("message", (event) => {
+                const response = JSON.parse(event.data);
 
-        if (response.type === 'recid') {
-            const userId = response.id;
-            console.log('Received unique ID:', userId);
-            userIdElement.textContent = userId;
-            userIdRecipientElement.textContent = userId;
-        } else if (response.type === 'connect') {
-            console.log('You have been connected with another user.');
+                if (response.type === "recid") {
+                    const userId = response.id;
+                    console.log("Received unique ID:", userId);
+                    userIdElement.textContent = userId;
+                    userIdRecipientElement.textContent = userId;
+                } else if (response.type === "connect") {
+                    console.log("You have been connected with another user.");
 
-            // Perform any necessary actions to establish the connection between the devices
-            // For example, you can start a video call or initiate a data transfer.
-        } else if (response.type === 'notification') {
-            console.log('Notification:', response.message);
-        } else if (response.type === 'fileData') {
-            console.log('Received file data from sender');
+                    // Perform any necessary actions to establish the connection between the devices
+                    // For example, you can start a video call or initiate a data transfer.
+                } else if (response.type === "notification") {
+                    console.log("Notification:", response.message);
+                } else if (response.type === "fileData") {
+                    console.log("Received file data from sender");
 
-            // Convert the data URL to a file and trigger the download
-            const fileName = `received_file_${Date.now()}`;
-            const fileDataUrl = response.dataUrl;
-            convertDataUrlToFile(fileDataUrl, fileName);
-        }
-    });
+                    // Convert the data URL to a file and trigger the download
+                    const fileName = `received_file_${Date.now()}`;
+                    const fileDataUrl = response.dataUrl;
+                    convertDataUrlToFile(fileDataUrl, fileName);
+                }
+            });
 
-    // Connection closed
-    socket.addEventListener('close', () => {
-        console.log('Disconnected from server');
-    });
+            // Connection closed
+            socket.addEventListener("close", () => {
+                console.log("Disconnected from server");
+            });
 
-    filePickerElement.addEventListener('change', handleFileSelection);
+            filePickerElement.addEventListener("change", handleFileSelection);
 
-    function handleFileSelection(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
+            function handleFileSelection(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
 
-        reader.onload = function (e) {
-            const fileData = e.target.result.split(',')[1]; // Extract the base64 data from the file
-            sendFileData(fileData);
-        };
+                reader.onload = function (e) {
+                    const fileData = e.target.result.split(",")[1]; // Extract the base64 data from the file
+                    sendFileData(fileData);
+                };
 
-        reader.readAsDataURL(file);
-    }
+                reader.readAsDataURL(file);
+            }
 
-    function sendRequest() {
-        const receiverId = receiverIdElement.value;
-        const request = {
-            type: 'seconduser',
-            secondUserId: receiverId,
-        };
-        socket.send(JSON.stringify(request));
-    }
+            function sendRequest() {
+                const receiverId = receiverIdElement.value;
+                const request = {
+                    type: "seconduser",
+                    secondUserId: receiverId,
+                };
+                socket.send(JSON.stringify(request));
+            }
 
-    function connect() {
-        const transmitterId = transmitterIdElement.value;
-        const request = {
-            type: 'seconduser',
-            secondUserId: transmitterId,
-        };
-        socket.send(JSON.stringify(request));
-    }
+            function connect() {
+                const transmitterId = transmitterIdElement.value;
+                const request = {
+                    type: "seconduser",
+                    secondUserId: transmitterId,
+                };
+                socket.send(JSON.stringify(request));
+            }
 
-    function sendFileData(fileData) {
-        const request = {
-            type: 'fileData',
-            dataUrl: `data:application/octet-stream;base64,${fileData}`,
-        };
-        socket.send(JSON.stringify(request));
-    }
+            function sendFileData(fileData) {
+                const request = {
+                    type: "fileData",
+                    dataUrl: `data:application/octet-stream;base64,${fileData}`,
+                };
+                socket.send(JSON.stringify(request));
+            }
 
-    function convertDataUrlToFile(dataUrl, fileName) {
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-</script>
-</body>
-
+            function convertDataUrlToFile(dataUrl, fileName) {
+                const link = document.createElement("a");
+                link.href = dataUrl;
+                link.download = fileName;
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        </script>
+    </body>
 </html>
