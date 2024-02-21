@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const fs = require('fs');
 const mimeTypes = require('mime-types');
-const wss = new WebSocket.Server({ port: 3000 });
+const wss = new WebSocket.Server({ port: 7102 });
 
 const connectedUsers = new Map();
 const pendingRequests = [];
